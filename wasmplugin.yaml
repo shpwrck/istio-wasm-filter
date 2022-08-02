@@ -3,9 +3,9 @@ kind: WasmPlugin
 metadata:
   name: header-example
 spec:
-  url: oci://ghcr.io/shpwrck/istio-wasm-filter:v43
+  url: oci://ghcr.io/shpwrck/istio-wasm-filter:latest
   pluginConfig:
-    remoteURL: "outbound|8000||httpbin.no-label.svc.cluster.local"
+    cluster: "outbound|8000||httpbin.ext-svc.svc.cluster.local"
     responseMapping:
       Org: X-Org
       Product: X-Product

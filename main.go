@@ -28,7 +28,7 @@ type pluginContext struct {
 }
 
 type pluginConfiguration struct {
-	remoteURL       string
+	cluster       string
 	responseMapping map[string]string
 }
 
@@ -44,7 +44,7 @@ func (ctx *pluginContext) OnPluginStart(pluginConfigurationSize int) types.OnPlu
 		return types.OnPluginStartStatusFailed
 	}
 	ctx.configuration = config
-	proxywasm.LogWarnf("Remote URL: %v", config.remoteURL)
+	proxywasm.LogWarnf("Remote URL: %v", config.cluster)
 	for k, v := range config.responseMapping {
 		proxywasm.LogWarnf("Response Mapping [%v] -> [%v]", k, v)
 	}
@@ -89,27 +89,27 @@ func parsePluginConfiguration(data []byte) (pluginConfiguration, error) {
 
 	config := &pluginConfiguration{}
 	jsonData := gjson.ParseBytes(data)
-	remoteURL := jsonData.Get("remoteURL").String()
+	cluster := jsonData.Get("cluster").String()
 	responseMap := make(map[string]string)
 	jsonData.Get("responseMapping").ForEach(func(key, value gjson.Result) bool {
 		responseMap[key.String()] = value.String()
 		return true
 	})
 
-	config.remoteURL = remoteURL
+	config.cluster = cluster
 	config.responseMapping = responseMap
 
 	return *config, nil
 }
 
 func (ctx *pluginContext) NewHttpContext(contextID uint32) types.HttpContext {
-	return &payloadContext{remoteURL: ctx.configuration.remoteURL, callBack: ctx.callBack}
+	return &payloadContext{cluster: ctx.configuration.cluster, callBack: ctx.callBack}
 }
 
 type payloadContext struct {
 	types.DefaultHttpContext
 	totalRequestBodySize int
-	remoteURL            string
+	cluster            string
 	callBack             func(numHeaders, bodySize, numTrailers int)
 }
 
@@ -121,8 +121,8 @@ func (ctx *payloadContext) OnHttpRequestHeaders(numHeaders int, _ bool) types.Ac
 		proxywasm.LogCriticalf("failed to forward request headers: %v", err)
 	}
 
-	if _, err := proxywasm.DispatchHttpCall(ctx.remoteURL, originalHeaders, nil, nil, 5000, ctx.callBack); err != nil {
-		proxywasm.LogCriticalf("dispatch httpcall failed: %v", ctx.remoteURL)
+	if _, err := proxywasm.DispatchHttpCall(ctx.cluster, originalHeaders, nil, nil, 5000, ctx.callBack); err != nil {
+		proxywasm.LogCriticalf("dispatch httpcall failed: %v", ctx.cluster)
 		proxywasm.LogCriticalf("dispatch httpcall failed: %v", err)
 	}
 
