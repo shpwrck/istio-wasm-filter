@@ -1,0 +1,11 @@
+apiVersion: extensions.istio.io/v1alpha1
+kind: WasmPlugin
+metadata:
+  name: header-example
+spec:
+  url: oci://ghcr.io/shpwrck/istio-wasm-filter:v43
+  pluginConfig:
+    remoteURL: "outbound|8000||httpbin.no-label.svc.cluster.local"
+    responseMapping:
+      Org: X-Org
+      Product: X-Product
