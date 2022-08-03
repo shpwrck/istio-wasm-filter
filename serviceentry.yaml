@@ -1,0 +1,16 @@
+apiVersion: networking.istio.io/v1beta1
+kind: ServiceEntry
+metadata:
+  name: external-svc-httpbin
+  namespace: int-svc
+spec:
+  exportTo:
+  - .
+  hosts:
+  - httpbin.org
+  location: MESH_EXTERNAL
+  ports:
+  - name: http
+    number: 80
+    protocol: HTTP
+  resolution: DNS
