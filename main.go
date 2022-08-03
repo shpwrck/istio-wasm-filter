@@ -28,7 +28,7 @@ type pluginContext struct {
 }
 
 type pluginConfiguration struct {
-	cluster       string
+	cluster         string
 	responseMapping map[string]string
 }
 
@@ -66,8 +66,10 @@ func (ctx *pluginContext) OnPluginStart(pluginConfigurationSize int) types.OnPlu
 		}
 		jsonData := gjson.ParseBytes(responseBody).Get("headers")
 		for key, value := range ctx.configuration.responseMapping {
-			proxywasm.RemoveHttpRequestHeader(key)
-			proxywasm.AddHttpRequestHeader(value, jsonData.Get(key).String())
+			if jsonData.Get(key).Exists() {
+				proxywasm.RemoveHttpRequestHeader(key)
+				proxywasm.AddHttpRequestHeader(value, jsonData.Get(key).String())
+			}
 		}
 		proxywasm.LogWarnf("Body: %v", jsonData.Raw)
 
@@ -109,7 +111,7 @@ func (ctx *pluginContext) NewHttpContext(contextID uint32) types.HttpContext {
 type payloadContext struct {
 	types.DefaultHttpContext
 	totalRequestBodySize int
-	cluster            string
+	cluster              string
 	callBack             func(numHeaders, bodySize, numTrailers int)
 }
 
