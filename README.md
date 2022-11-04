@@ -10,7 +10,8 @@ The example currently uses an external `httpbin` service to map from values `Org
 ### What is required?
 
 * make
-* tinygo
+* [go-1.19.x](https://go.dev/doc/install)
+* [tinygo-0.26.x](https://tinygo.org/getting-started/install/)
 * docker
 * kind
 * kubectl
@@ -19,6 +20,28 @@ The example currently uses an external `httpbin` service to map from values `Org
 ### How to test?
 
 `make deploy`
+
+### How do I change it?
+
+* [WasmPlugin](https://istio.io/latest/docs/reference/config/proxy_extensions/wasm-plugin/)
+  - selector -> specify which workloads this will be deployed
+  - url -> specify another wasm plugin
+  - phase -> when the plugin is inserted AUTHN,AUTHZ,STATS
+  - pluginConfig -> configuration that the plugin is exposing
+  - vmConfig -> configuration for the VM itself (VMs/data can be shared by plugins)
+  - priority -> higher is prioritized
+  - security -> pullpolicy, pullsecret, sha256
+* Code
+  - [ABI](https://github.com/proxy-wasm/spec/tree/master/abi-versions/vNEXT)
+  - [HostCalls](https://github.com/tetratelabs/proxy-wasm-go-sdk/blob/main/proxywasm/hostcall.go)
+  - [Shared KVStore](https://github.com/tetratelabs/proxy-wasm-go-sdk/blob/main/proxywasm/hostcall.go#L508-L533)
+  - [Shared Queue](https://github.com/tetratelabs/proxy-wasm-go-sdk/blob/main/proxywasm/hostcall.go#L56-L88)
+
+### E2E Testing
+
+```
+make e2e
+```
 
 ### Does it impact performance?
 
